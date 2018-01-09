@@ -14,15 +14,23 @@ public class DungeonGenerator : MonoBehaviour
 
     public GameObject roomPrefab;
 
+    public bool useSeed = false;
+    public int seed = 1337;
+
     public Room[] rooms;
 
     private void Start()
     {
+
+        if (useSeed)
+            Random.InitState(seed);
+        else
+            seed = Random.seed;
+
         rooms = new Room[spawnCount];
-        Random.InitState((int)(Time.realtimeSinceStartup * 100f));
         for (int i = 0; i < spawnCount; i++)
         {
-            rooms[i] = Instantiate(roomPrefab, transform.position + (Vector3)Random.insideUnitCircle, Quaternion.identity, transform).GetComponent<Room>();
+            rooms[i] = Instantiate(roomPrefab, transform.position + (Vector3)Random.insideUnitCircle * spawnRadius, Quaternion.identity, transform).GetComponent<Room>();
             rooms[i].width = Random.Range(MIN_WIDTH, MAX_WIDTH);
             rooms[i].height = Random.Range(MIN_HEIGHT, MAX_HEIGHT);
         }
@@ -31,20 +39,28 @@ public class DungeonGenerator : MonoBehaviour
 
     IEnumerator ResolveOverlaps()
     {
+        yield return new WaitForEndOfFrame();
         bool overlapsResolved = false;
         while (!overlapsResolved)
         {
-            //overlapsResolved = true;
+            overlapsResolved = true;
             for (int i = 0; i < rooms.Length; i++)
             {
+                rooms[i].overlapping = false;
                 for (int j = 0; j < rooms.Length; j++)
                 {
                     if (rooms[i] == rooms[j]) continue;
-                    rooms[i].ResolveOverlap(rooms[j]);
+                    if (!rooms[i].resolvingOverlap && rooms[i].IsOverlapping(rooms[j]))
+                    {
+                        overlapsResolved = false;
+                        rooms[i].overlapping = true;
+                        rooms[i].ResolveOverlap(rooms[j]);
+                    }
                 }
             }
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForFixedUpdate();
         }
+        Debug.Log("DONE");
     }
 
     private void OnDrawGizmosSelected()

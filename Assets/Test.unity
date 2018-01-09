@@ -313,9 +313,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ef16f4f187c037438226c174b6e22f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnRadius: 30
-  spawnCount: 30
+  spawnRadius: 60
+  spawnCount: 100
   roomPrefab: {fileID: 1887822713851566, guid: 49f00c11ef51caa40b93f63a1cf3429f, type: 2}
+  useSeed: 1
+  seed: 1
   rooms: []
 --- !u!4 &800607801
 Transform:
